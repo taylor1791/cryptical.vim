@@ -1,0 +1,53 @@
+Before:
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+
+Execute (Preserves unknown characters and case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet, [5, 8]).cipher
+  AssertEqual g:affine_cipher.encrypt('HELLO, world!'), 'RCLLA, world!' 
+  AssertEqual g:affine_cipher.decrypt('RCLLA, world!'), 'HELLO, world!' 
+  
+Execute (Preserves unknown characters, but not case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet, [19, 13]).cipher
+  AssertEqual g:affine_cipher.encrypt('Hello, World!'), 'QLOOT, PTYOS!'
+  AssertEqual g:affine_cipher.decrypt('QLOOT, PTYOS!'), 'hello, world!'
+
+Execute (Strips unknown characters, but preserves case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet, [13, 8]).cipher
+  AssertEqual g:affine_cipher.encrypt('hello, WORLD!'), ' nZZLbceRsu'
+  AssertEqual g:affine_cipher.decrypt(' nZZLbceRsu') , 'hello WORLD'
+
+Execute (Strips unknown characters and does not preserve case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet, [9, 4]).cipher
+  AssertEqual g:affine_cipher.encrypt('Hello, World!'), 'POZZAUABZF'
+  AssertEqual g:affine_cipher.decrypt('POZZAUABZF'), 'helloworld'
+  
+Execute (Encrypt & decrypt are inverses):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet).cipher
+  let g:plaintext = "hello, world!"
+  AssertEqual g:affine_cipher.decrypt(g:affine_cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Key reconstitutes the cipher):
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let g:affine_cipher_1 = cryptical#affine#create(s:alphabet)
+  let g:affine_cipher_2 = cryptical#affine#create(s:alphabet, g:affine_cipher_1.key)
+  let g:plaintext = "HELLO, WORLD!"
+  AssertEqual g:affine_cipher_2.cipher.decrypt(g:affine_cipher_1.cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Throws when the key is invalid):
+  let g:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  AssertThrow call cryptical#affine#create(g:alphabet, [13, 1])
+  AssertEqual g:vader_exception, "a and alphabet length must be coprime"
