@@ -1,4 +1,4 @@
-function cryptical#affine#create(alphabet, ...)
+function cryptical#affine#create(alphabet, ...) abort
   let l:alphabet = type(a:alphabet) ==# v:t_string ? split(a:alphabet, '\zs') : a:alphabet
 
   let l:key = a:0 ==# 1 ? a:1 : s:generate_key(l:alphabet)
@@ -6,7 +6,7 @@ function cryptical#affine#create(alphabet, ...)
   return { 'key': l:key, 'cipher': s:affine_cipher(l:alphabet, key[0], key[1]) }
 endfunction
 
-function s:generate_key(alphabet)
+function s:generate_key(alphabet) abort
   while v:true
     let l:a = rand() % len(a:alphabet)
     let l:b = rand() % len(a:alphabet)
@@ -17,7 +17,7 @@ function s:generate_key(alphabet)
   endwhile
 endfunction
 
-function s:affine_cipher(alphabet, a, b)
+function s:affine_cipher(alphabet, a, b) abort
   let l:egcd = s:egcd(a:a, len(a:alphabet))
   if l:egcd.gcd !=# 1
     throw 'a and alphabet length must be coprime'
@@ -31,7 +31,7 @@ function s:affine_cipher(alphabet, a, b)
 
   let l:cipher = {}
 
-  function l:cipher.encrypt(character) closure
+  function l:cipher.encrypt(character) abort closure
     if !has_key(l:ns, a:character)
       return v:null
     endif
@@ -41,7 +41,7 @@ function s:affine_cipher(alphabet, a, b)
     return a:alphabet[l:n]
   endfunction
 
-  function l:cipher.decrypt(character) closure
+  function l:cipher.decrypt(character) abort closure
     if !has_key(l:ns, a:character)
       return v:null
     endif
@@ -54,7 +54,7 @@ function s:affine_cipher(alphabet, a, b)
   return cryptical#substitution#create(l:cipher.encrypt, l:cipher.decrypt)
 endfunction
 
-function s:egcd(a, b)
+function s:egcd(a, b) abort
   let [l:r_old, l:r] = [a:a, a:b]
   let [l:s_old, l:s] = [1, 0]
   let [l:t_old, l:t] = [0, 1]

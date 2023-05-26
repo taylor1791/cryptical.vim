@@ -1,7 +1,7 @@
-function! cryptical#substitution#create(encrypt, decrypt)
+function! cryptical#substitution#create(encrypt, decrypt) abort
   let l:cipher = {}
 
-  function l:cipher.encrypt(plaintext) closure
+  function l:cipher.encrypt(plaintext) abort closure
     let l:plaintext = g:cryptical_case_convention ? tolower(a:plaintext) : a:plaintext
     let l:encrypted = s:Crypt(a:encrypt, l:plaintext)
     let l:encrypted = g:cryptical_case_convention ? toupper(l:encrypted) : l:encrypted
@@ -9,7 +9,7 @@ function! cryptical#substitution#create(encrypt, decrypt)
     return l:encrypted
   endfunction
 
-  function l:cipher.decrypt(ciphertext) closure
+  function l:cipher.decrypt(ciphertext) abort closure
     let l:ciphertext = g:cryptical_case_convention ? tolower(a:ciphertext) : a:ciphertext
     let l:plaintext = s:Crypt(a:decrypt, l:ciphertext)
     let l:plaintext = g:cryptical_case_convention ? tolower(l:plaintext) : l:plaintext
@@ -20,7 +20,7 @@ function! cryptical#substitution#create(encrypt, decrypt)
   return l:cipher
 endfunction
 
-function s:Crypt(crypt, starting)
+function s:Crypt(crypt, starting) abort
   let l:Tokenize = function('s:CrypticalTokenizeChars')
   let l:Detokenizer = function('s:CrypticalDetokenizeNull')
 
@@ -42,10 +42,10 @@ function s:Crypt(crypt, starting)
   return l:ciphered
 endfunction
 
-function s:CrypticalTokenizeChars(plaintext)
+function s:CrypticalTokenizeChars(plaintext) abort
   return split(a:plaintext, '\zs')
 endfunction
 
-function s:CrypticalDetokenizeNull(ciphertext)
+function s:CrypticalDetokenizeNull(ciphertext) abort
   return join(a:ciphertext, '')
 endfunction
