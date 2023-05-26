@@ -1,5 +1,5 @@
 function cryptical#affine#create(alphabet, ...)
-  let l:alphabet = type(a:alphabet) == type('') ? split(a:alphabet, '\zs') : a:alphabet
+  let l:alphabet = type(a:alphabet) == v:t_string ? split(a:alphabet, '\zs') : a:alphabet
 
   let l:key = a:0 == 1 ? a:1 : s:generate_key(l:alphabet)
 

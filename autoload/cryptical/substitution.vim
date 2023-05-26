@@ -34,7 +34,7 @@ function s:Crypt(crypt, starting)
       let l:crypted = l:token
     endif
 
-    let l:crypted = type(l:crypted) !=# type([]) ? [l:crypted] : l:crypted
+    let l:crypted = type(l:crypted) !=# v:t_list ? [l:crypted] : l:crypted
     let l:ciphered += l:crypted
   endfor
 
