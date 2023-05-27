@@ -1,0 +1,100 @@
+Before:
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+
+Execute (Preserves unknown characters and case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, [1, 0]).cipher
+  AssertEqual g:shift_cipher.encrypt('HELLO, world!'), 'IFMMP, world!'
+  AssertEqual g:shift_cipher.decrypt('IFMMP, world!'), 'HELLO, world!'
+
+Execute (Preserves unknown characters, but not case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, [-1, 0]).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'GDKKN, VNQKC!'
+  AssertEqual g:shift_cipher.decrypt('GDKKN, VNQKC!'), 'hello, world!'
+
+Execute (Strips unknown characters, but preserves case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, [1, 1]).cipher
+  AssertEqual g:shift_cipher.encrypt('Hello, World!'), 'IgoptfcwAvo'
+  AssertEqual g:shift_cipher.decrypt('IgoptfcwAvo'), 'Hello World'
+
+Execute (Strips unknown characters and does not preserve case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, [-1, 1]).cipher
+  AssertEqual g:shift_cipher.encrypt('Hello, World!'), 'GCIHJQHJCT'
+  AssertEqual g:shift_cipher.decrypt('GCIHJQHJCT'), 'helloworld'
+
+Execute (Encrypt & decrypt are inverses):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, [13, 1]).cipher
+  let g:plaintext = "hello, world!"
+  AssertEqual g:shift_cipher.decrypt(g:shift_cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Key reconstitutes the cipher):
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let g:shift_cipher_1 = cryptical#shift#create(s:alphabet)
+  let g:shift_cipher_2 = cryptical#shift#create(s:alphabet, g:shift_cipher_1.key).cipher
+  let g:plaintext = "HELLO, WORLD!"
+  AssertEqual g:shift_cipher_2.decrypt(g:shift_cipher_1.cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Basic shift):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [13, 0]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'uryyb, jbeyq!'
+  AssertEqual g:shift_cipher.decrypt('uryyb, jbeyq!'), 'hello, world!'
+
+Execute (Sequence shift):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [[3, 11, 7, 13], 1]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'kpsyr, hveoo!'
+  AssertEqual g:shift_cipher.decrypt('kpsyr, hveoo!'), 'hello, world!'
+
+Execute (Progressive shift):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [1, 1]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'igopt, cvzun!'
+  AssertEqual g:shift_cipher.decrypt('igopt, cvzun!'), 'hello, world!'
+
+Execute (Custom shift - Progressive starting at 0):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  function s:shift(character, character_n, group_n)
+    return a:group_n
+  endfunction
+  let s:key = [funcref('s:shift'), 1]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'hfnos, buytm!'
+  AssertEqual g:shift_cipher.decrypt('hfnos, buytm!'), 'hello, world!'
+
+Execute (Alternating shift):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [[-7, 7], 1]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'alesh, dhyek!'
+  AssertEqual g:shift_cipher.decrypt('alesh, dhyek!'), 'hello, world!'
+
+Execute (Change shift every N characters):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [3, 2]
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'khrrx, fadas!'
+  AssertEqual g:shift_cipher.decrypt('khrrx, fadas!'), 'hello, world!'
+
+Execute (Change shift every word):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = [11, ' ']
+  let g:shift_cipher = cryptical#shift#create(s:alphabet, s:key).cipher
+  AssertEqual g:shift_cipher.encrypt('hello, world!'), 'spwwz, hzcwo!'
+  AssertEqual g:shift_cipher.decrypt('spwwz, hzcwo!'), 'hello, world!'
