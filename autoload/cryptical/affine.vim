@@ -9,9 +9,9 @@ endfunction
 function s:generate_key(alphabet) abort
   while v:true
     let l:a = rand() % len(a:alphabet)
-    let l:b = rand() % len(a:alphabet)
 
     if s:egcd(l:a, len(a:alphabet)).gcd ==# 1
+      let l:b = rand() % len(a:alphabet)
       return [l:a, l:b]
     endif
   endwhile
