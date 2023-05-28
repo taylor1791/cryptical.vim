@@ -1,0 +1,11 @@
+Before:
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+
+Execute (Atbash cipher):
+  AssertEqual g:cryptical#atbash.encrypt('abcdefghijklmnopqrstuvwxyz'), 'zyxwvutsrqponmlkjihgfedcba'
+  AssertEqual g:cryptical#atbash.decrypt('zyxwvutsrqponmlkjihgfedcba'), 'abcdefghijklmnopqrstuvwxyz'
+
+Execute (Caesar cipher):
+  AssertEqual g:cryptical#caesar.encrypt('abcdefghijklmnopqrstuvwxyz'), 'defghijklmnopqrstuvwxyzabc'
+  AssertEqual g:cryptical#caesar.decrypt('defghijklmnopqrstuvwxyzabc'), 'abcdefghijklmnopqrstuvwxyz'
