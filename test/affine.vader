@@ -47,6 +47,12 @@ Execute (Key reconstitutes the cipher):
   let g:plaintext = "HELLO, WORLD!"
   AssertEqual g:affine_cipher_2.cipher.decrypt(g:affine_cipher_1.cipher.encrypt(g:plaintext)), g:plaintext
 
+Execute (Supports negative keys):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:affine_cipher = cryptical#affine#create(s:alphabet, [-3, -2]).cipher
+  AssertEqual g:affine_cipher.encrypt("hello, world!"), "dmrri, kizrp!"
+  AssertEqual g:affine_cipher.decrypt("dmrri, kizrp!"), "hello, world!"
+
 Execute (Throws when the key is invalid):
   let g:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   AssertThrow call cryptical#affine#create(g:alphabet, [13, 1])

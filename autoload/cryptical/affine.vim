@@ -12,18 +12,20 @@ function s:generate_key(alphabet) abort
 
     if s:egcd(l:a, len(a:alphabet)).gcd ==# 1
       let l:b = rand() % len(a:alphabet)
-      return [l:a, l:b]
+      let l:a_sign = rand() % 2 * 2 - 1
+      let l:b_sign = rand() % 2 * 2 - 1
+      return [l:a_sign * l:a, l:b_sign * l:b]
     endif
   endwhile
 endfunction
 
 function s:affine_cipher(alphabet, a, b) abort
-  let l:egcd = s:egcd(a:a, len(a:alphabet))
-  if l:egcd.gcd !=# 1
+  let l:egcd = s:egcd(abs(a:a), len(a:alphabet))
+  if abs(l:egcd.gcd) !=# 1
     throw 'a and alphabet length must be coprime'
   endif
 
-  let l:a_inverse = l:egcd.x
+  let l:a_inverse = s:sign(a:a) * l:egcd.x
   let l:ns = {}
   for i in range(len(a:alphabet))
     let l:ns[a:alphabet[i]] = i
@@ -67,4 +69,8 @@ function s:egcd(a, b) abort
   endwhile
 
   return { 'gcd': l:r_old, 'x': l:s_old, 'y': l:t_old }
+endfunction
+
+function s:sign(a) abort
+  return (a:a > 0) - (a:a < 0)
 endfunction
