@@ -1,0 +1,70 @@
+Before:
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+
+Execute (Preserves unknown characters and case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let s:key = 'CUGBWMAHJXETLVZIORNPDSKYFQ'
+  let g:cipher = cryptical#mixed_alphabet#create(s:alphabet, s:key).cipher
+  AssertEqual g:cipher.encrypt('HELLO, World!'), 'HWTTZ, Korld!' 
+  AssertEqual g:cipher.decrypt('HWTTZ, Korld!'), 'HELLO, World!'
+
+Execute (Preserves unknown characters, but not case):
+  let g:cryptical_unknown_character_policy = 'preserve'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = 'qpoezuvbgajrckiwtndyhlsmfx'
+  let g:cipher = cryptical#mixed_alphabet#create(s:alphabet, s:key).cipher
+  AssertEqual g:cipher.encrypt('Hello, World!'), 'BZRRI, SINRE!'
+  AssertEqual g:cipher.decrypt('BZRRI, SINRE!'), 'hello, world!'
+
+Execute (Strips unknown characters, but preserves case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:false
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+  let s:key = 'QlOqcYKSkIMsVwGmdgyJXtBzjUErbiLDWnaFhCpue fRHvTxoPZNA'
+  let g:cipher = cryptical#mixed_alphabet#create(s:alphabet, s:key).cipher
+  AssertEqual g:cipher.encrypt('Hello, World!'), 'SDpp EB HpL'
+  AssertEqual g:cipher.decrypt('SDpp EB HpL') , 'Hello World'
+
+Execute (Strips unknown characters and does not preserve case):
+  let g:cryptical_unknown_character_policy = 'strip'
+  let g:cryptical_case_convention = v:true
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = 'qpofdnbsguvhyxailcjezktrmw'
+  let g:cipher = cryptical#mixed_alphabet#create(s:alphabet, s:key).cipher
+  AssertEqual g:cipher.encrypt('Hello, World!'), 'SDHHATACHF'
+  AssertEqual g:cipher.decrypt('SDHHATACHF'), 'helloworld'
+  
+Execute (Encrypt & decrypt are inverses):
+  let s:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let g:cipher = cryptical#mixed_alphabet#create(s:alphabet).cipher
+  let g:plaintext = "hello, world!"
+  AssertEqual g:cipher.decrypt(g:cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Key reconstitutes the cipher):
+  let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let g:cipher_1 = cryptical#mixed_alphabet#create(s:alphabet)
+  let g:cipher_2 = cryptical#mixed_alphabet#create(g:cipher_1.alphabet, g:cipher_1.key).cipher
+  let g:plaintext = "HELLO, WORLD!"
+  AssertEqual g:cipher_2.decrypt(g:cipher_1.cipher.encrypt(g:plaintext)), g:plaintext
+
+Execute (Throws when the alphabet contains duplicate characters):
+  AssertThrow call cryptical#mixed_alphabet#create('aa')
+
+Execute (Uses the first of each letter from the key phrase):
+  let g:alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  let s:key = "thequickbrownfoxjumpsoverthelazydog"
+  let g:actual_key = 'thequickbrownfxjmpsvlazydg'
+  let g:cipher = cryptical#mixed_alphabet#create(g:alphabet, g:actual_key).cipher
+  AssertEqual g:cipher.encrypt('abcdefghijklmnopqrstuvwxyz'), g:actual_key
+  AssertEqual g:cipher.decrypt(g:actual_key), g:alphabet
+
+Execute (Appends missing letters to the keyphrase):
+  let g:alphabet =   'abcdefghijklmnopqrstuvwxyz'
+  let g:actual_key = 'enigmabcdfhjklopqrstuvwxyz'
+  let g:cipher = cryptical#mixed_alphabet#create(g:alphabet, "enigma").cipher
+  AssertEqual g:cipher.encrypt('abcdefghijklmnopqrstuvwxyz'), g:actual_key
+  AssertEqual g:cipher.decrypt(g:actual_key), g:alphabet
