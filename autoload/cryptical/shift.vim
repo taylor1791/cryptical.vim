@@ -17,6 +17,7 @@ function cryptical#shift#create(alphabet, ...) abort
   let l:Encrypt = s:shift_cipher(l:alphabet, l:encrypt_key[0], l:encrypt_key[1])
   let l:Decrypt = s:shift_cipher(l:alphabet, l:DecryptKey, l:encrypt_key[1])
   return {
+    \ 'alphabet': a:alphabet,
     \ 'key': l:encrypt_key,
     \ 'cipher': cryptical#substitution#create(l:Encrypt, l:Decrypt),
   \ }

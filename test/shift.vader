@@ -43,7 +43,7 @@ Execute (Encrypt & decrypt are inverses):
 Execute (Key reconstitutes the cipher):
   let s:alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   let g:shift_cipher_1 = cryptical#shift#create(s:alphabet)
-  let g:shift_cipher_2 = cryptical#shift#create(s:alphabet, g:shift_cipher_1.key).cipher
+  let g:shift_cipher_2 = cryptical#shift#create(g:shift_cipher_1.alphabet, g:shift_cipher_1.key).cipher
   let g:plaintext = "HELLO, WORLD!"
   AssertEqual g:shift_cipher_2.decrypt(g:shift_cipher_1.cipher.encrypt(g:plaintext)), g:plaintext
 

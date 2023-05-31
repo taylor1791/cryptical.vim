@@ -3,7 +3,11 @@ function cryptical#affine#create(alphabet, ...) abort
 
   let l:key = a:0 ==# 1 ? a:1 : s:generate_key(l:alphabet)
 
-  return { 'key': l:key, 'cipher': s:affine_cipher(l:alphabet, key[0], key[1]) }
+  return {
+    \ 'alphabet': a:alphabet,
+    \ 'key': l:key,
+    \ 'cipher': s:affine_cipher(l:alphabet, key[0], key[1])
+  \ }
 endfunction
 
 function s:generate_key(alphabet) abort
