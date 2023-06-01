@@ -2,17 +2,19 @@ function! cryptical#substitution#create(encrypt, decrypt) abort
   let l:cipher = {}
 
   function l:cipher.encrypt(plaintext) abort closure
-    let l:plaintext = g:cryptical_case_convention ? tolower(a:plaintext) : a:plaintext
+    let l:case_convention = cryptical#get_case_convention()
+    let l:plaintext = l:case_convention ? tolower(a:plaintext) : a:plaintext
     let l:encrypted = s:Crypt(a:encrypt, l:plaintext)
-    let l:encrypted = g:cryptical_case_convention ? toupper(l:encrypted) : l:encrypted
+    let l:encrypted = l:case_convention ? toupper(l:encrypted) : l:encrypted
 
     return l:encrypted
   endfunction
 
   function l:cipher.decrypt(ciphertext) abort closure
-    let l:ciphertext = g:cryptical_case_convention ? tolower(a:ciphertext) : a:ciphertext
+    let l:case_convention = cryptical#get_case_convention()
+    let l:ciphertext = l:case_convention ? tolower(a:ciphertext) : a:ciphertext
     let l:plaintext = s:Crypt(a:decrypt, l:ciphertext)
-    let l:plaintext = g:cryptical_case_convention ? tolower(l:plaintext) : l:plaintext
+    let l:plaintext = l:case_convention ? tolower(l:plaintext) : l:plaintext
 
     return l:plaintext
   endfunction
@@ -21,6 +23,7 @@ function! cryptical#substitution#create(encrypt, decrypt) abort
 endfunction
 
 function s:Crypt(crypt, starting) abort
+  let l:unknown_character_policy = cryptical#get_unknown_character_policy()
   let l:Tokenize = function('s:CrypticalTokenizeChars')
   let l:Detokenizer = function('s:CrypticalDetokenizeNull')
 
@@ -28,9 +31,9 @@ function s:Crypt(crypt, starting) abort
   for token in l:Tokenize(a:starting)
     let l:crypted = a:crypt(l:token)
 
-    if l:crypted ==# v:null && g:cryptical_unknown_character_policy ==? 'strip'
+    if l:crypted ==# v:null && l:unknown_character_policy ==? 'strip'
       let l:crypted = []
-    elseif l:crypted ==# v:null && g:cryptical_unknown_character_policy ==? 'preserve'
+    elseif l:crypted ==# v:null && l:unknown_character_policy ==? 'preserve'
       let l:crypted = l:token
     endif
 
